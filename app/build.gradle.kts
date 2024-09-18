@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    id("androidx.room")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.plugin.compose")
+    alias(libs.plugins.kotlinx.serialization)
 }
 
 android {
@@ -19,7 +24,9 @@ android {
             useSupportLibrary = true
         }
     }
-
+    room {
+        schemaDirectory("$projectDir/schemas")
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -50,6 +57,38 @@ android {
 }
 
 dependencies {
+
+    //navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.kotlinx.serialization.json)
+
+    //hilt
+    implementation("com.google.dagger:hilt-android:2.51")
+    ksp("com.google.dagger:hilt-android:2.51")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    //room
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.transportation.consumer)
+    //implementation(libs.androidx.ui.desktop)
+    annotationProcessor(libs.room.compiler)
+    ksp(libs.room.compiler)
+
+    //optional
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    //Hilt
+    implementation("com.google.dagger:hilt-android:2.51")
+    ksp("com.google.dagger:hilt-android-compiler:2.51")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
+    implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
