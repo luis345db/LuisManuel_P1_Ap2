@@ -11,7 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import edu.ucne.luismanuel_p1_ap2.presentation.navigation.LuisManuel_P1_Ap2NavHost
 import edu.ucne.luismanuel_p1_ap2.ui.theme.LuisManuel_P1_Ap2Theme
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -26,6 +28,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
+                val navHost = rememberNavController()
+                LuisManuel_P1_Ap2NavHost(navHost)
             }
         }
     }
