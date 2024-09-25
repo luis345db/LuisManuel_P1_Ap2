@@ -10,18 +10,18 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface VentaDao {
     @Upsert
-    suspend fun save(Venta: VentasEntity)
+    suspend fun save(venta: VentasEntity)
 
     @Query("""
         SELECT * FROM VENTAS
-        WHERE idVentas = :id
+        WHERE ventaId = :id
         LIMIT 1
     """)
     suspend fun find(id: Int): VentasEntity
 
     @Delete
-    suspend fun delete(Venta: VentasEntity)
+    suspend fun delete(venta: VentasEntity)
 
     @Query("SELECT * FROM ventas")
-    suspend fun getAll(): Flow<List<VentasEntity>>
+     fun getAll(): Flow<List<VentasEntity>>
 }
