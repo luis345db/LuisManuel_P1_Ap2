@@ -15,7 +15,7 @@ import javax.inject.Singleton
 object AppModule {
     @Provides
     @Singleton
-    fun provideAlgoDb(@ApplicationContext appContext: Context)=
+    fun provideVentaDb(@ApplicationContext appContext: Context)=
         Room.databaseBuilder(
             appContext,
             Parcial1Db::class.java,
@@ -24,7 +24,7 @@ object AppModule {
             .build()
 
     @Provides
-    fun provideAlgoDao(parcial1Db: Parcial1Db) = parcial1Db.algoDao()
+    fun provideVentaDao(parcial1Db: Parcial1Db) = parcial1Db.ventaDao()
 
 
 }
