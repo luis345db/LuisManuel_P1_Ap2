@@ -6,32 +6,55 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import edu.ucne.luismanuel_p1_ap2.presentation.venta.VentaListScreen
+import edu.ucne.luismanuel_p1_ap2.presentation.venta.VentaScreen
 
 @Composable
 fun LuisManuel_P1_Ap2NavHost(
-    navHostController: NavHostController
+    navHost: NavHostController
 ){
     NavHost(
-        navController = navHostController,
-        startDestination = Screen.listScreen
+        navController = navHost,
+        startDestination = Screen.VentaList
 
     ){
-        composable<Screen.listScreen> {
-                OutlinedButton(
-                    onClick = {navHostController.navigate(Screen.registroScreen(0))}
-                ) {
-                    Text(
-                        text = "Ir a la Segunda Pantalla"
-                    )
+        composable<Screen.VentaList> {
+            VentaListScreen(
+                goToVenta = {
+                    navHost.navigate(Screen.Venta(it))
+                },
+                goToAddVenta = {
+                    navHost.navigate(Screen.Venta(0))
+                },
+                onDeleteVenta = {
+
+                    navHost.navigate(Screen.Venta(0))
+
+                },
+                onEditVenta = {
+
+                    navHost.navigate(Screen.Venta(0))
                 }
+            )
         }
 
-        composable<Screen.registroScreen> {
-            Text(
-                text = "Estamos en la Segunda Pantalla"
+
+        composable<Screen.Venta> {
+            val args = it.toRoute<Screen.Venta>()
+            VentaScreen(
+                ventaId = args.ventaid,
+                goBack = {
+                    navHost.navigateUp()
+                }
             )
         }
 
 
     }
+
+
 }
+
+
+
