@@ -28,7 +28,7 @@ import edu.ucne.luismanuel_p1_ap2.data.local.entities.VentasEntity
 import edu.ucne.luismanuel_p1_ap2.presentation.venta.VentaViewModel.UiState
 
 @Composable
-fun ProductoListScreen(
+fun VentaListScreen(
     viewModel: VentaViewModel = hiltViewModel(),
 
     goToVenta: (Int) -> Unit,
@@ -68,7 +68,7 @@ fun ProductoListBodyScreen(
             modifier = Modifier.fillMaxSize().padding(innerPadding)
         ) {
             Spacer(modifier = Modifier.height(32.dp))
-            Text("Lista de Productos")
+            Text("Lista de Ventas")
 
             LazyColumn(
                 modifier = Modifier.fillMaxSize()
