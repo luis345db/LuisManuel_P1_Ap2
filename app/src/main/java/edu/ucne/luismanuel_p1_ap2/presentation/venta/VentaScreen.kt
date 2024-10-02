@@ -25,7 +25,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,6 +89,9 @@ fun VentaBodyScreen(
 
     ){
 
+    var nombreEmpresaError by remember { mutableStateOf(false) }
+    var galonesError by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -133,24 +139,51 @@ fun VentaBodyScreen(
                             Text(text = "Nombre Empresa")
                         },
                         value = uiState.nombreEmpresa?: "",
-                        onValueChange = onNombreEmpresaChange,
+                        onValueChange = { onNombreEmpresaChange
+                            nombreEmpresaError = it.isBlank()
+
+                        },
+                        isError = nombreEmpresaError,
+                        singleLine = true
                     )
+                    if (nombreEmpresaError) {
+                        Text(
+                            text = "Este campo es obligatorio",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
+
 
                     OutlinedTextField(
                         label = { Text(text = "Galones") },
-                        value = uiState.galones?.toString() ?: "", // Convertimos el valor a String
+                        value = uiState.galones?.toString() ?: "",
                         onValueChange = { newValue ->
-                            // Intentamos convertir el texto ingresado a un número entero
+
                             val intValue = newValue.toIntOrNull()
-                            if (intValue != null) {
-                                onGalonesChange(intValue) // Actualiza el valor si es un número entero
+                            if (intValue != null && intValue > 0) {
+                                onGalonesChange(intValue)
+                                galonesError = false
+                            }
+                            else{
+                                galonesError = true
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Number // Mostramos un teclado numérico
-                        )
+                        ),
+                        isError = galonesError,
+                        singleLine = true
                     )
+                    if (galonesError) {
+                        Text(
+                            text = "Los galones deben ser mayores a 0",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
+
 
                     OutlinedTextField(
                         label = { Text(text = "Descuento por galon") },
@@ -205,8 +238,15 @@ fun VentaBodyScreen(
                     OutlinedButton(
 
                         onClick = {
+
+
+                            nombreEmpresaError = uiState.nombreEmpresa.isNullOrBlank()
+                            galonesError = uiState.galones == null || uiState.galones <= 0
+
+                            if(!nombreEmpresaError && !galonesError){
                             saveVenta()
                             goBack()
+                                }
                         }
                     ) {
                         Icon(
