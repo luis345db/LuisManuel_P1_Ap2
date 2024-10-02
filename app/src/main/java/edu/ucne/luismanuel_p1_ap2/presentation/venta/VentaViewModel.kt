@@ -102,11 +102,42 @@ fun delete(){
         _uiState.update{
             it.copy(galones = galones)
         }
+        calcularTotal()
     }
 
+    fun onDescuentoGalonChange(descuentoGalon: Double){
+        _uiState.update{
+            it.copy(descuentoGalon = descuentoGalon)
+        }
+        calcularTotal() // Calcula el total después de actualizar descuento
+    }
+    fun onPrecioChange(precio: Double){
+        _uiState.update{
+            it.copy(precio = precio)
+        }
+        calcularTotal() // Calcula el total después de actualizar precio
+    }
     fun onVentasIdChange(ventaId: Int) {
         _uiState.update {
             it.copy(ventaId = ventaId)
+        }
+    }
+
+    fun calcularTotal() {
+        val galones = _uiState.value.galones ?: 0
+        val descuentoGalon = _uiState.value.descuentoGalon
+        val precio = _uiState.value.precio
+
+        // Calcula el total descontado y el total
+        val totalDescontado = galones * descuentoGalon
+        val total = (galones * precio) - totalDescontado
+
+        // Actualiza el estado con los nuevos valores calculados
+        _uiState.update {
+            it.copy(
+                totalDescontado = totalDescontado,
+                total = total
+            )
         }
     }
 
