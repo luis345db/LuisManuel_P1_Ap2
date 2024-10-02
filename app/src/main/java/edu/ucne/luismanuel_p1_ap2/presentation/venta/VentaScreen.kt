@@ -57,6 +57,8 @@ fun VentaScreen(
         onNombreEmpresaChange = viewModel::onNombreEmpresaChange,
         onGalonesChange= viewModel::onGalonesChange,
         onVentasIdChange = viewModel::onVentasIdChange,
+        onDescuentoGalonChange= viewModel::onDescuentoGalonChange,
+        onPrecioChange= viewModel::onPrecioChange,
         saveVenta = viewModel::save,
         deleteVenta = viewModel::delete,
         nuevoVenta = viewModel::nuevo,
@@ -72,6 +74,8 @@ fun VentaBodyScreen(
     uiState: VentaViewModel.UiState,
     onNombreEmpresaChange: (String) -> Unit,
     onGalonesChange: (Int) -> Unit,
+    onDescuentoGalonChange: (Double) -> Unit,
+    onPrecioChange: (Double) -> Unit,
     onVentasIdChange: (Int) -> Unit,
     saveVenta: () -> Unit,
     ventaId: Int,
@@ -168,7 +172,7 @@ fun VentaBodyScreen(
                     OutlinedTextField(
                         label = { Text(text = "Total Descontado") },
                         value = uiState.totalDescontado?.toString() ?: "", // Convertimos el valor a String
-                        onValueChange = {},
+                        onValueChange = {onDescuentoGalonChange},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
                     )
@@ -176,7 +180,7 @@ fun VentaBodyScreen(
                     OutlinedTextField(
                         label = { Text(text = "Total") },
                         value = uiState.total?.toString() ?: "", // Convertimos el valor a String
-                        onValueChange = {},
+                        onValueChange = {onPrecioChange},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
                     )
