@@ -27,15 +27,7 @@ fun LuisManuel_P1_Ap2NavHost(
                 goToAddVenta = {
                     navHost.navigate(Screen.Venta(0))
                 },
-                onDeleteVenta = {
 
-                    navHost.navigate(Screen.Venta(0))
-
-                },
-                onEditVenta = {
-
-                    navHost.navigate(Screen.Venta(0))
-                }
             )
         }
 
