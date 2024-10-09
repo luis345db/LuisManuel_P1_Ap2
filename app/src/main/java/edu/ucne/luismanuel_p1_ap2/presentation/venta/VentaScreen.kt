@@ -25,7 +25,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +46,7 @@ fun VentaScreen(
     viewModel: VentaViewModel = hiltViewModel(),
     goBack: () -> Unit,
     ventaId: Int
-){
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(key1 = ventaId) {
@@ -55,16 +58,16 @@ fun VentaScreen(
     VentaBodyScreen(
         uiState = uiState,
         onNombreEmpresaChange = viewModel::onNombreEmpresaChange,
-        onGalonesChange= viewModel::onGalonesChange,
+        onGalonesChange = viewModel::onGalonesChange,
         onVentasIdChange = viewModel::onVentasIdChange,
+        onDescuentoGalonChange = viewModel::onDescuentoGalonChange,
+        onPrecioChange = viewModel::onPrecioChange,
         saveVenta = viewModel::save,
-        deleteVenta = viewModel::delete,
         nuevoVenta = viewModel::nuevo,
         goBack = goBack,
         ventaId = ventaId
     )
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,15 +75,16 @@ fun VentaBodyScreen(
     uiState: VentaViewModel.UiState,
     onNombreEmpresaChange: (String) -> Unit,
     onGalonesChange: (Int) -> Unit,
+    onDescuentoGalonChange: (Double) -> Unit,
+    onPrecioChange: (Double) -> Unit,
     onVentasIdChange: (Int) -> Unit,
     saveVenta: () -> Unit,
     ventaId: Int,
-    deleteVenta: () -> Unit,
     nuevoVenta: () -> Unit,
-
     goBack: () -> Unit,
-
-    ){
+) {
+    var nombreEmpresaError by remember { mutableStateOf(false) }
+    var galonesError by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -90,15 +94,13 @@ fun VentaBodyScreen(
                     Text("Registro de Ventas")
                 },
                 navigationIcon = {
-                    IconButton(onClick = goBack ) {
+                    IconButton(onClick = goBack) {
                         Icon(imageVector = Icons.Filled.Menu,
                             contentDescription = "Menú"
                         )
                     }
                 }
             )
-
-
         }
     ) { innerPadding ->
 
@@ -128,38 +130,60 @@ fun VentaBodyScreen(
                         label = {
                             Text(text = "Nombre Empresa")
                         },
-                        value = uiState.nombreEmpresa?: "",
-                        onValueChange = onNombreEmpresaChange,
+                        value = uiState.nombreEmpresa ?: "",
+                        onValueChange = { newValue ->
+                            onNombreEmpresaChange(newValue)
+                            nombreEmpresaError = newValue.isBlank()
+                        },
+                        isError = nombreEmpresaError,
+                        singleLine = true
                     )
+                    if (nombreEmpresaError) {
+                        Text(
+                            text = "Este campo es obligatorio",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
 
                     OutlinedTextField(
                         label = { Text(text = "Galones") },
-                        value = uiState.galones?.toString() ?: "", // Convertimos el valor a String
+                        value = uiState.galones?.toString() ?: "",
                         onValueChange = { newValue ->
-                            // Intentamos convertir el texto ingresado a un número entero
                             val intValue = newValue.toIntOrNull()
-                            if (intValue != null) {
-                                onGalonesChange(intValue) // Actualiza el valor si es un número entero
+                            if (intValue != null && intValue > 0) {
+                                onGalonesChange(intValue)
+                                galonesError = false
+                            } else {
+                                galonesError = true
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions.Default.copy(
-                            keyboardType = KeyboardType.Number // Mostramos un teclado numérico
-                        )
+                            keyboardType = KeyboardType.Number
+                        ),
+                        isError = galonesError,
+                        singleLine = true
                     )
+                    if (galonesError) {
+                        Text(
+                            text = "Los galones deben ser mayores a 0",
+                            color = Color.Red,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                    }
 
                     OutlinedTextField(
-                        label = { Text(text = "Descuento por galon") },
-                        value = uiState.descuentoGalon.toString() ?: "", // Convertimos el valor a String
+                        label = { Text(text = "Descuento por galón") },
+                        value = uiState.descuentoGalon.toString(),
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
                     )
 
-
                     OutlinedTextField(
                         label = { Text(text = "Precio") },
-                        value = uiState.precio.toString() ?: "", // Convertimos el valor a String
+                        value = uiState.precio.toString(),
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
@@ -167,7 +191,7 @@ fun VentaBodyScreen(
 
                     OutlinedTextField(
                         label = { Text(text = "Total Descontado") },
-                        value = uiState.totalDescontado?.toString() ?: "", // Convertimos el valor a String
+                        value = uiState.totalDescontado?.toString() ?: "",
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
@@ -175,7 +199,7 @@ fun VentaBodyScreen(
 
                     OutlinedTextField(
                         label = { Text(text = "Total") },
-                        value = uiState.total?.toString() ?: "", // Convertimos el valor a String
+                        value = uiState.total?.toString() ?: "",
                         onValueChange = {},
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true
@@ -193,56 +217,38 @@ fun VentaBodyScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "new button"
+                            contentDescription = "Nuevo"
                         )
                         Text(text = "Nuevo")
                     }
-                    val scope = rememberCoroutineScope()
-                    OutlinedButton(
 
+                    OutlinedButton(
                         onClick = {
-                            saveVenta()
-                            goBack()
+                            nombreEmpresaError = uiState.nombreEmpresa.isNullOrBlank()
+                            galonesError = uiState.galones == null || uiState.galones <= 0
+
+                            if (!nombreEmpresaError && !galonesError) {
+                                saveVenta()
+                                goBack()
+                            }
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "save button"
+                            contentDescription = "Guardar"
                         )
                         Text(text = "Guardar")
                     }
-
-                    if (ventaId != 0) {
-                        Button(
-                            onClick = {
-                                deleteVenta()
-                                goBack()
-
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar Producto"
-                            )
-                            Text("Eliminar")
-
-
-                        }
-
-
-                    }
                 }
-
             }
         }
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
-fun ProductoScreenPreview(){
-    LuisManuel_P1_Ap2Theme(){
+fun VentaScreenPreview() {
+    LuisManuel_P1_Ap2Theme {
         VentaScreen(
             ventaId = 0,
             goBack = {}
