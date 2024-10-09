@@ -14,7 +14,7 @@ import javax.inject.Inject
 @HiltViewModel
 class VentaViewModel @Inject constructor(
     private val ventaRepository: VentaRepository
-): ViewModel(){
+) : ViewModel() {
     private val _uiState = MutableStateFlow(UiState())
     val uiState = _uiState.asStateFlow()
 
@@ -22,101 +22,101 @@ class VentaViewModel @Inject constructor(
         getVentas()
     }
 
-    fun save(){
+    fun save() {
         viewModelScope.launch {
-            if(_uiState.value.nombreEmpresa.isNullOrBlank() && _uiState.value.galones == 0 ){
+            if (_uiState.value.nombreEmpresa.isNullOrBlank() || _uiState.value.galones == null || _uiState.value.galones == 0) {
                 _uiState.update {
-                    it.copy(errorMessage = "Campos Vacios")
+                    it.copy(errorMessage = "Campos Vacíos")
                 }
-
-            }else{
+            } else {
                 ventaRepository.save(_uiState.value.toEntity())
+                nuevo()
             }
         }
     }
 
-    fun nuevo(){
-        _uiState.update{
+    fun nuevo() {
+        _uiState.update {
             it.copy(
                 ventaId = null,
                 nombreEmpresa = "",
                 galones = null,
                 descuentoGalon = 4.7,
                 precio = 132.6,
-                totalDescontado =null ,
+                totalDescontado = null,
                 total = null,
-                errorMessage= null
+                errorMessage = null
             )
         }
     }
 
-    fun selectedVenta(ventaId : Int){
+    fun selectedVenta(ventaId: Int) {
         viewModelScope.launch {
-            if(ventaId > 0){
+            if (ventaId > 0) {
                 val venta = ventaRepository.getVenta(ventaId)
-                _uiState.update{
+                _uiState.update {
                     it.copy(
                         ventaId = venta?.ventaId,
                         nombreEmpresa = venta?.nombreEmpresa,
                         galones = venta?.galones,
-                        descuentoGalon = venta.descuentoGalon,
-                        precio = venta.precio,
+                        descuentoGalon = venta?.descuentoGalon ?: 4.7,
+                        precio = venta?.precio ?: 132.6,
                         totalDescontado = venta?.totalDescontado,
                         total = venta?.total
-
-
-
                     )
                 }
-
-
             }
         }
     }
 
-fun delete(){
-    viewModelScope.launch {
-        ventaRepository.delete(_uiState.value.toEntity())
+    fun delete(venta: VentasEntity) {
+        viewModelScope.launch {
+            ventaRepository.delete(venta)
+            _uiState.update {
+                it.copy(
+                    ventas = it.ventas.filter { it.ventaId != venta.ventaId }
+                )
+            }
+        }
     }
-}
 
-    private fun getVentas(){
+    private fun getVentas() {
         viewModelScope.launch {
             ventaRepository.getVentas().collect { ventas ->
                 _uiState.update {
                     it.copy(ventas = ventas)
                 }
-
             }
         }
     }
 
-
-    fun onNombreEmpresaChange(nombreEmpresa: String){
-        _uiState.update{
+    fun onNombreEmpresaChange(nombreEmpresa: String) {
+        _uiState.update {
             it.copy(nombreEmpresa = nombreEmpresa)
         }
     }
 
-    fun onGalonesChange(galones: Int){
-        _uiState.update{
+    fun onGalonesChange(galones: Int) {
+        _uiState.update {
             it.copy(galones = galones)
         }
         calcularTotal()
     }
 
-    fun onDescuentoGalonChange(descuentoGalon: Double){
-        _uiState.update{
+    fun onDescuentoGalonChange(descuentoGalon: Double) {
+        _uiState.update {
             it.copy(descuentoGalon = descuentoGalon)
         }
-        calcularTotal() // Calcula el total después de actualizar descuento
+        calcularTotal()
     }
-    fun onPrecioChange(precio: Double){
-        _uiState.update{
+
+    fun onPrecioChange(precio: Double) {
+        _uiState.update {
             it.copy(precio = precio)
         }
-        calcularTotal() // Calcula el total después de actualizar precio
+        calcularTotal()
     }
+
     fun onVentasIdChange(ventaId: Int) {
         _uiState.update {
             it.copy(ventaId = ventaId)
@@ -128,11 +128,9 @@ fun delete(){
         val descuentoGalon = _uiState.value.descuentoGalon
         val precio = _uiState.value.precio
 
-        // Calcula el total descontado y el total
         val totalDescontado = galones * descuentoGalon
         val total = (galones * precio) - totalDescontado
 
-        // Actualiza el estado con los nuevos valores calculados
         _uiState.update {
             it.copy(
                 totalDescontado = totalDescontado,
@@ -142,24 +140,24 @@ fun delete(){
     }
 
     data class UiState(
-        val ventaId: Int? =null,
+        val ventaId: Int? = null,
         val nombreEmpresa: String? = "",
-        val galones:  Int? =null,
+        val galones: Int? = null,
         val descuentoGalon: Double = 4.7,
-        val precio: Double= 132.6,
-        val totalDescontado: Double? =null,
-        val total: Double? =null,
+        val precio: Double = 132.6,
+        val totalDescontado: Double? = null,
+        val total: Double? = null,
         val ventas: List<VentasEntity> = emptyList(),
-        val errorMessage: String? = null,
+        val errorMessage: String? = null
+    )
 
-        )
     fun UiState.toEntity() = VentasEntity(
         ventaId = ventaId,
         nombreEmpresa = nombreEmpresa ?: "",
-        galones= galones?:null,
-        descuentoGalon= descuentoGalon,
+        galones = galones ?: 0,
+        descuentoGalon = descuentoGalon,
         precio = precio,
-        totalDescontado= totalDescontado?: null,
-        total = total?: null
+        totalDescontado = totalDescontado ?: 0.0,
+        total = total ?: 0.0
     )
 }
