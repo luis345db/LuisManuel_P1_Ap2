@@ -63,7 +63,7 @@ fun VentaScreen(
         onDescuentoGalonChange= viewModel::onDescuentoGalonChange,
         onPrecioChange= viewModel::onPrecioChange,
         saveVenta = viewModel::save,
-        deleteVenta = viewModel::delete,
+
         nuevoVenta = viewModel::nuevo,
         goBack = goBack,
         ventaId = ventaId
@@ -82,7 +82,7 @@ fun VentaBodyScreen(
     onVentasIdChange: (Int) -> Unit,
     saveVenta: () -> Unit,
     ventaId: Int,
-    deleteVenta: () -> Unit,
+
     nuevoVenta: () -> Unit,
 
     goBack: () -> Unit,
@@ -257,25 +257,7 @@ fun VentaBodyScreen(
                         Text(text = "Guardar")
                     }
 
-                    if (ventaId != 0) {
-                        Button(
-                            onClick = {
-                                deleteVenta()
-                                goBack()
 
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                contentDescription = "Eliminar Producto"
-                            )
-                            Text("Eliminar")
-
-
-                        }
-
-
-                    }
                 }
 
             }
