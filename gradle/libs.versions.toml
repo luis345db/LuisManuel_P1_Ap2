@@ -14,10 +14,12 @@ roomCompilerVersion = "2.6.1"
 roomRuntime = "2.6.1"
 transportationConsumer = "2.3.0"
 uiDesktop = "1.7.0"
+material = "1.7.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
 
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
